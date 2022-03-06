@@ -1,5 +1,5 @@
 __pycache__
 data
 experiments/pretrained-models/
-experiments/reference/checkpoint
-experiments/reference/ckpt*
+experiments/*/checkpoint
+experiments/*/ckpt*
