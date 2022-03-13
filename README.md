@@ -96,7 +96,7 @@ Loss values are again exploding and seems that data augmentation is not the only
 
 #### Bigger batch size
 The batch size used was too small and that can block the model from reaching a decent performance that why we thought about doubling the batch size from `2` to `4`. And now results turned out to be way better than what we got before. <br>
-By the way, we kept the same augmentation operation from the previous section, in the new training done with bigger batch size. <br>
+By the way, we kept the same augmentation operation from the previous section, in the new training done with bigger batch size. You can check the final config file `experiments/augmentation/pipeline_new.config`. <br>
 ![reference run vs augmentation and bigger batch size](img/reference_vs_bigger_batch.png) <br>
 ![precision comparison](img/precision_comparison.png) <br>
 ![recall comparison](img/recall_comparison.png) <br>
