@@ -116,3 +116,4 @@ python experiments/exporter_main_v2.py --input_type image_tensor --pipeline_conf
 ```
 python inference_video.py --labelmap_path label_map.pbtxt --model_path {dir where model was exported} --tf_record_path {path of one tfrecord file from test set} --config_path {path of pipeline_new.config file} --output_path animation.gif
 ```
+On our side, after generating some gif animation, we merged them into an mp4 video animation that you can find in this project `animation.mp4`. 
