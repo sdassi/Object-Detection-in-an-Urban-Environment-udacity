@@ -26,12 +26,15 @@ def make_directories(base_dir):
 
 def split(source, destination):
     """
-    Create three splits from the processed records. The files should be moved to new folders in the
-    same directory. This folder should be named train, val and test.
+    Create three splits from the processed records.
+    The files should be moved to new folders in the same directory.
+    This folder should be named train, val and test.
 
     args:
-        - source [str]: source data directory, contains the processed tf records
-        - destination [str]: destination data directory, contains 3 sub folders: train / val / test
+        - source [str]: source data directory
+            contains the processed tf records
+        - destination [str]: destination data directory
+            contains 3 sub folders: train / val / test
     """
     train_dir, val_dir, test_dir = make_directories(destination)
     tfrec_files = glob.glob(os.path.join(source, "*tfrecord"))
@@ -41,10 +44,11 @@ def split(source, destination):
         move(tfrec_file, train_dir)
 
     threshold_val = round(len(tfrec_files) * TRAIN_VAL_TEST_PROP[1])
-    for tfrec_file in tfrec_files[threshold_train: threshold_train + threshold_val]:
+    train_val_threshold = threshold_train + threshold_val
+    for tfrec_file in tfrec_files[threshold_train: train_val_threshold]:
         move(tfrec_file, val_dir)
 
-    for tfrec_file in tfrec_files[threshold_train + threshold_val:]:
+    for tfrec_file in tfrec_files[train_val_threshold:]:
         move(tfrec_file, test_dir)
 
 
