@@ -9,8 +9,15 @@ from PIL import Image
 from psutil import cpu_count
 from waymo_open_dataset import dataset_pb2 as open_dataset
 
-from utils import get_module_logger, parse_frame, int64_feature, int64_list_feature, \
-    bytes_list_feature, bytes_feature, float_list_feature
+from utils import (
+    get_module_logger,
+    parse_frame,
+    int64_feature,
+    int64_list_feature,
+    bytes_list_feature,
+    bytes_feature,
+    float_list_feature,
+)
 
 
 def create_tf_example(filename, encoded_jpeg, annotations, resize=True):
@@ -37,40 +44,50 @@ def create_tf_example(filename, encoded_jpeg, annotations, resize=True):
         encoded_jpeg = tf.io.encode_jpeg(image_res).numpy()
         width, height = 640, 640
 
-    mapping = {1: 'vehicle', 2: 'pedestrian', 4: 'cyclist'}
-    image_format = b'jpg'
+    mapping = {1: "vehicle", 2: "pedestrian", 4: "cyclist"}
+    image_format = b"jpg"
     xmins = []
     xmaxs = []
     ymins = []
     ymaxs = []
     classes_text = []
     classes = []
-    filename = filename.encode('utf8')
+    filename = filename.encode("utf8")
 
     for ann in annotations:
-        xmin, ymin = ann.box.center_x - 0.5 * ann.box.length, ann.box.center_y - 0.5 * ann.box.width
-        xmax, ymax = ann.box.center_x + 0.5 * ann.box.length, ann.box.center_y + 0.5 * ann.box.width
+        xmin, ymin = (
+            ann.box.center_x - 0.5 * ann.box.length,
+            ann.box.center_y - 0.5 * ann.box.width,
+        )
+        xmax, ymax = (
+            ann.box.center_x + 0.5 * ann.box.length,
+            ann.box.center_y + 0.5 * ann.box.width,
+        )
         xmins.append(xmin / width_factor)
         xmaxs.append(xmax / width_factor)
         ymins.append(ymin / height_factor)
         ymaxs.append(ymax / height_factor)
         classes.append(ann.type)
-        classes_text.append(mapping[ann.type].encode('utf8'))
+        classes_text.append(mapping[ann.type].encode("utf8"))
 
-    tf_example = tf.train.Example(features=tf.train.Features(feature={
-        'image/height': int64_feature(height),
-        'image/width': int64_feature(width),
-        'image/filename': bytes_feature(filename),
-        'image/source_id': bytes_feature(filename),
-        'image/encoded': bytes_feature(encoded_jpeg),
-        'image/format': bytes_feature(image_format),
-        'image/object/bbox/xmin': float_list_feature(xmins),
-        'image/object/bbox/xmax': float_list_feature(xmaxs),
-        'image/object/bbox/ymin': float_list_feature(ymins),
-        'image/object/bbox/ymax': float_list_feature(ymaxs),
-        'image/object/class/text': bytes_list_feature(classes_text),
-        'image/object/class/label': int64_list_feature(classes),
-    }))
+    tf_example = tf.train.Example(
+        features=tf.train.Features(
+            feature={
+                "image/height": int64_feature(height),
+                "image/width": int64_feature(width),
+                "image/filename": bytes_feature(filename),
+                "image/source_id": bytes_feature(filename),
+                "image/encoded": bytes_feature(encoded_jpeg),
+                "image/format": bytes_feature(image_format),
+                "image/object/bbox/xmin": float_list_feature(xmins),
+                "image/object/bbox/xmax": float_list_feature(xmaxs),
+                "image/object/bbox/ymin": float_list_feature(ymins),
+                "image/object/bbox/ymax": float_list_feature(ymaxs),
+                "image/object/class/text": bytes_list_feature(classes_text),
+                "image/object/class/label": int64_list_feature(classes),
+            }
+        )
+    )
     return tf_example
 
 
@@ -86,15 +103,15 @@ def download_tfr(filename, data_dir):
         - local_path [str]: path where the file is saved
     """
     # create data dir
-    dest = os.path.join(data_dir, 'raw')
+    dest = os.path.join(data_dir, "raw")
     os.makedirs(dest, exist_ok=True)
 
     # download the tf record file
-    cmd = ['gsutil', 'cp', filename, f'{dest}']
-    logger.info(f'Downloading {filename}')
+    cmd = ["gsutil", "cp", filename, f"{dest}"]
+    logger.info(f"Downloading {filename}")
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
-        logger.error(f'Could not download file {filename}')
+        logger.error(f"Could not download file {filename}")
 
     local_path = os.path.join(dest, os.path.basename(filename))
     return local_path
@@ -109,13 +126,13 @@ def process_tfr(path, data_dir):
         - data_dir [str]: path to the destination directory
     """
     # create processed data dir
-    dest = os.path.join(data_dir, 'processed')
+    dest = os.path.join(data_dir, "processed")
     os.makedirs(dest, exist_ok=True)
     file_name = os.path.basename(path)
 
-    logger.info(f'Processing {path}')
-    writer = tf.python_io.TFRecordWriter(f'{dest}/{file_name}')
-    dataset = tf.data.TFRecordDataset(path, compression_type='')
+    logger.info(f"Processing {path}")
+    writer = tf.python_io.TFRecordWriter(f"{dest}/{file_name}")
+    dataset = tf.data.TFRecordDataset(path, compression_type="")
     for idx, data in enumerate(dataset):
         # we are only saving every 10 frames to reduce the number of similar
         # images. Remove this line if you have enough space to work with full
@@ -124,7 +141,7 @@ def process_tfr(path, data_dir):
             frame = open_dataset.Frame()
             frame.ParseFromString(bytearray(data.numpy()))
             encoded_jpeg, annotations = parse_frame(frame)
-            filename = file_name.replace('.tfrecord', f'_{idx}.tfrecord')
+            filename = file_name.replace(".tfrecord", f"_{idx}.tfrecord")
             tf_example = create_tf_example(filename, encoded_jpeg, annotations)
             writer.write(tf_example.SerializeToString())
     writer.close()
@@ -137,25 +154,31 @@ def download_and_process(filename, data_dir):
     local_path = download_tfr(filename, data_dir)
     process_tfr(local_path, data_dir)
     # remove the original tf record to save space
-    logger.info(f'Deleting {local_path}')
+    logger.info(f"Deleting {local_path}")
     os.remove(local_path)
 
 
 if __name__ == "__main__":
     logger = get_module_logger(__name__)
-    parser = argparse.ArgumentParser(description='Download and process tf files')
-    parser.add_argument('--data_dir', required=True,
-                        help='data directory')
-    parser.add_argument('--size', required=False, default=100, type=int,
-                        help='Number of files to download')
+    parser = argparse.ArgumentParser(description="Download and process tf files")
+    parser.add_argument("--data_dir", required=True, help="data directory")
+    parser.add_argument(
+        "--size",
+        required=False,
+        default=100,
+        type=int,
+        help="Number of files to download",
+    )
     args = parser.parse_args()
     data_dir = args.data_dir
     size = args.size
 
     # open the filenames file
-    with open('filenames.txt', 'r') as f:
+    with open("filenames.txt", "r") as f:
         filenames = f.read().splitlines()
-    logger.info(f'Download {len(filenames[:size])} files. Be patient, this will take a long time.')
+    logger.info(
+        f"Download {len(filenames[:size])} files. Be patient, this will take a long time."
+    )
 
     # init ray
     ray.init(num_cpus=cpu_count())
