@@ -9,15 +9,9 @@ from PIL import Image
 from psutil import cpu_count
 from waymo_open_dataset import dataset_pb2 as open_dataset
 
-from utils import (
-    get_module_logger,
-    parse_frame,
-    int64_feature,
-    int64_list_feature,
-    bytes_list_feature,
-    bytes_feature,
-    float_list_feature,
-)
+from utils import (bytes_feature, bytes_list_feature, float_list_feature,
+                   get_module_logger, int64_feature, int64_list_feature,
+                   parse_frame)
 
 
 def create_tf_example(filename, encoded_jpeg, annotations, resize=True):
