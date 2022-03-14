@@ -64,7 +64,8 @@ def main(labelmap_path, model_path, tf_record_path, config_path, output_path):
 
         # tensor -> numpy arr, remove one dimensions
         num_detections = int(detections.pop("num_detections"))
-        detections = {key: value[0, ...].numpy() for key, value in detections.items()}
+        detections = {key: value[0, ...].numpy()
+                      for key, value in detections.items()}
         detections["num_detections"] = num_detections
 
         # detection_classes should be ints.
@@ -87,7 +88,8 @@ def main(labelmap_path, model_path, tf_record_path, config_path, output_path):
 
     # now we can create the animation
     f = plt.figure()
-    f.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
+    f.subplots_adjust(left=0, bottom=0, right=1,
+                      top=1, wspace=None, hspace=None)
     ax = plt.subplot(111)
     ax.axis("off")
     im_obj = ax.imshow(images[0])

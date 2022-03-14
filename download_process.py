@@ -34,7 +34,8 @@ def create_tf_example(filename, encoded_jpeg, annotations, resize=True):
     else:
         image_tensor = tf.io.decode_jpeg(encoded_jpeg)
         height_factor, width_factor, _ = image_tensor.shape
-        image_res = tf.cast(tf.image.resize(image_tensor, (640, 640)), tf.uint8)
+        image_res = tf.cast(tf.image.resize(
+            image_tensor, (640, 640)), tf.uint8)
         encoded_jpeg = tf.io.encode_jpeg(image_res).numpy()
         width, height = 640, 640
 
@@ -154,7 +155,8 @@ def download_and_process(filename, data_dir):
 
 if __name__ == "__main__":
     logger = get_module_logger(__name__)
-    parser = argparse.ArgumentParser(description="Download and process tf files")
+    parser = argparse.ArgumentParser(
+        description="Download and process tf files")
     parser.add_argument("--data_dir", required=True, help="data directory")
     parser.add_argument(
         "--size",
@@ -176,5 +178,6 @@ if __name__ == "__main__":
 
     # init ray
     ray.init(num_cpus=cpu_count())
-    workers = [download_and_process.remote(fn, data_dir) for fn in filenames[:size]]
+    workers = [download_and_process.remote(
+        fn, data_dir) for fn in filenames[:size]]
     _ = ray.get(workers)

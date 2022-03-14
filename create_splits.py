@@ -41,10 +41,10 @@ def split(source, destination):
         move(tfrec_file, train_dir)
 
     threshold_val = round(len(tfrec_files) * TRAIN_VAL_TEST_PROP[1])
-    for tfrec_file in tfrec_files[threshold_train : threshold_train + threshold_val]:
+    for tfrec_file in tfrec_files[threshold_train: threshold_train + threshold_val]:
         move(tfrec_file, val_dir)
 
-    for tfrec_file in tfrec_files[threshold_train + threshold_val :]:
+    for tfrec_file in tfrec_files[threshold_train + threshold_val:]:
         move(tfrec_file, test_dir)
 
 
@@ -52,7 +52,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Split data into training / validation / testing"
     )
-    parser.add_argument("--source", required=True, help="source data directory")
+    parser.add_argument("--source", required=True,
+                        help="source data directory")
     parser.add_argument(
         "--destination", required=True, help="destination data directory"
     )
